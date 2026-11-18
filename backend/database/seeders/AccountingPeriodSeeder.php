@@ -17,5 +17,14 @@ class AccountingPeriodSeeder extends Seeder
                 'status' => 'OPEN',
             ]
         );
+
+        AccountingPeriod::updateOrCreate(
+            ['name' => date('F Y')],
+            [
+                'start_date' => date('Y-m-01'),
+                'end_date' => date('Y-m-t'),
+                'status' => 'OPEN',
+            ]
+        );
     }
 }

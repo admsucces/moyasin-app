@@ -16,8 +16,9 @@ class AttachmentController extends Controller
     {
         $transaction = Transaction::findOrFail($id);
 
+        $disk = config('filesystems.default', 'local');
         $file = $request->file('file');
-        $path = $file->store('attachments', 'local');
+        $path = $file->store('attachments', $disk);
 
         $attachment = TransactionAttachment::create([
             'transaction_id' => $transaction->id,
@@ -38,15 +39,16 @@ class AttachmentController extends Controller
     public function download(Request $request, $id, $attachmentId)
     {
         $attachment = TransactionAttachment::where('transaction_id', $id)->findOrFail($attachmentId);
+        $disk = config('filesystems.default', 'local');
 
-        if (!Storage::disk('local')->exists($attachment->storage_path)) {
+        if (!Storage::disk($disk)->exists($attachment->storage_path)) {
             return response()->json([
                 'success' => false,
                 'message' => 'File lampiran tidak ditemukan pada server.',
             ], 404);
         }
 
-        return Storage::disk('local')->download($attachment->storage_path, $attachment->original_name, [
+        return Storage::disk($disk)->download($attachment->storage_path, $attachment->original_name, [
             'Content-Type' => $attachment->mime_type,
         ]);
     }
